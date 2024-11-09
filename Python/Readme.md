@@ -3,7 +3,7 @@
 Vous trouverez deux implémentations en Python, une en Flask et une en FastAPI.
 L'objectif de ces deux implémentations et de vous montrer qu'avec une architecture de code bien pensée, on peut changer de framework sans trop d'effort.
 
-Pour être honnête, ça m'a pris 20 minutes de faire le changement de framework, mais plus du double pour écrire ce fichier de readme.
+Pour être honnête, ça m'a pris 20 minutes de faire le changement de framework (pour un framework que je n'ai absolument jamais utilisé, avec ChatGPT pour la syntaxe donc), mais plus du double pour écrire ce fichier de readme.
 
 Prenez quelques minutes pour comparer les codes, vous verrez que le fichier main et les fichiers de controllers sont différents.
 En revanche, les dossiers domain, services, infra (base de données), n'ont pas changé
