@@ -79,65 +79,7 @@ async def hello():
 
 Vous remarquerez que les DTO sont gérés différemment, car dans le backend flask nous avons fait le choix d'utiliser un package propre à ce framework.
 
-```python
-#notre implémentation initiale en Flask:
-@author_bp.route('/authors', methods=['POST'])
-@expects_json(author_dto_schema)
-def create_author():
-    dto = request.json
-    author = author_mapper.to_domain(dto)
-    created_author = author_service.create_author(author)
-    return jsonify(author_mapper.to_external(created_author)), 201
-```
-
-Toutefois des packages plus génériques existent tels que Pydantic.
-Notez que Flask n'a pas de support natif pour Pydantic, **MAIS** qu'il existe un package _flask-pydantic_ qui vous évite l'instanciation.
-
-Réfléchissez donc également aux packages que vous utiliserez pendant vos conceptions, cela pourra vous permettre d'éviter d'être trop liés à un framework et devoir effectuer des changements supplémentaires.
-
-Je vous invite a essayer sur vos projets:
-
-Avec Flask:
-
-```python
-## si on utilisait pydantic avec Flask:
-@author_bp.route('/authors', methods=['POST'])
-def create_user():
-    try:
-        dto = AuthorDTO(**request.json)
-        author = author_mapper.to_domain(dto)
-        created_author = author_service.create_author(author)
-        return jsonify(author_mapper.to_external(created_author)), 201
-    except ValidationError as e:
-        return jsonify(e.errors()), 400
-
-
-## si on utilisait pydantic avec Flask et flask-pydantic
-@author_bp.route('/authors', methods=['POST'])
-@validate()
-def create_user(dto: AuthorDTO):
-    try:
-        author = author_mapper.to_domain(dto)
-        created_author = author_service.create_author(author)
-        return jsonify(author_mapper.to_external(created_author)), 201
-    except ValidationError as e:
-        return jsonify(e.errors()), 400
-```
-
-Avec FastAPI:
-
-```python
-## Quand on utilise pydantic avec FastAPI
-@router.post("/authors", status_code=status.HTTP_201_CREATED)
-async def create_author(dto: AuthorDTO):
-    author = author_mapper.to_domain(dto.dict())
-    created_author = author_service.create_author(author)
-    return author_mapper.to_external(created_author)
-```
-
-Pour les schémas, nous sommes passés d'objets à une définition class-based:
-
-Impélentation pour respecter flask_expects_json:
+Impélentation initiale pour respecter flask_expects_json:
 
 ```python
 # <backend>/shared/dto/schemas/author_dto.py
@@ -161,6 +103,23 @@ author_dto = {
 }
 ```
 
+```python
+@author_bp.route('/authors', methods=['POST'])
+@expects_json(author_dto_schema)
+def create_author():
+    dto = request.json
+    author = author_mapper.to_domain(dto)
+    created_author = author_service.create_author(author)
+    return jsonify(author_mapper.to_external(created_author)), 201
+```
+
+Toutefois des packages plus génériques existent tels que **Pydantic**.
+Notez que Flask n'a pas de support natif pour Pydantic, **MAIS** qu'il existe un package _flask-pydantic_ qui vous évite l'instanciation.
+
+Réfléchissez donc également aux packages que vous utiliserez pendant vos conceptions, cela pourra vous permettre d'éviter d'être trop liés à un framework et devoir effectuer des changements supplémentaires.
+
+Pour les schémas, nous sommes passés d'objets à une définition class-based:
+
 Implémentation générique Pydantic:
 
 ```python
@@ -175,6 +134,40 @@ class AuthorDTO(BaseModel):
     nationality: str = Field(..., max_length=100)
     biography: Optional[str] = Field(None, max_length=2000)
     books: List[int] = Field(default_factory=set)
+```
+
+Pour l'appel dans les controllers, avec Flask (implémentation possible de Pydantic):
+
+```python
+## si on utilisait pydantic avec Flask:
+@author_bp.route('/authors', methods=['POST'])
+def create_user():
+    try:
+        dto = AuthorDTO(**request.json)
+        author = author_mapper.to_domain(dto)
+        created_author = author_service.create_author(author)
+        return jsonify(author_mapper.to_external(created_author)), 201
+    except ValidationError as e:
+        return jsonify(e.errors()), 400
+
+
+## si on utilisait pydantic avec Flask et flask-pydantic
+@author_bp.route('/authors', methods=['POST'])
+@validate()
+def create_user(dto: AuthorDTO):
+    author = author_mapper.to_domain(dto)
+    created_author = author_service.create_author(author)
+    return jsonify(author_mapper.to_external(created_author)), 201
+```
+
+Avec FastAPI:
+
+```python
+@router.post("/authors", status_code=status.HTTP_201_CREATED)
+async def create_author(dto: AuthorDTO):
+    author = author_mapper.to_domain(dto.dict())
+    created_author = author_service.create_author(author)
+    return author_mapper.to_external(created_author)
 ```
 
 Les changements sur les mappers sont minimes, avec du typage et l'instanciation d'un DTO sur to_external:
