@@ -16,6 +16,7 @@ class UserInMemoryMapper(BaseMapper[User, UserInMemory]):
         return UserInMemory(
             id=user.id,
             email=user.email,
+            password=user.password,
             role=user.role,
             first_name=user.first_name,
             last_name=user.last_name

@@ -10,7 +10,7 @@ class UserInMemoryRepository(UserRepository):
 
     def add_user(self, user: User, password: str) -> User:
         """Adds a new user to the database."""
-        user_in_memory = self.mapper.to_in_memory(user, password)
+        user_in_memory = self.mapper.to_external(user, password)
         user_in_memory.id = self.current_id
         self.database[self.current_id] = user_in_memory
         self.current_id += 1
@@ -32,7 +32,7 @@ class UserInMemoryRepository(UserRepository):
         if user_id in self.database:
             current_password = self.database[user_id].password
             updated_user.password = current_password # On comprend de cette implémentation que la modification de mdp se fait à part
-            user_in_memory = self.mapper.to_in_memory(updated_user)  
+            user_in_memory = self.mapper.to_external(updated_user)  
             user_in_memory.id = user_id
             self.database[user_id] = user_in_memory
             return self.mapper.to_domain(user_in_memory)
