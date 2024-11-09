@@ -2,9 +2,9 @@
 
 Je vous ai montré en cours une architecture assez complète (et surtout complexe), qui s'inspire de ce qu'on appelle le Domain Driven Design (DDD).
 
-Je vous propose dans ce dossier une autre architecture, par feature, beaucoup plus applatie et également plus facile à prendre en main.
+Je vous propose dans ce dossier une autre architecture, par feature, beaucoup plus aplatie et également plus facile à prendre en main.
 
-Il y a toujours autant de fichier, mais leur répartition varie.
+Il y a toujours autant de fichiers, mais la façon dont ils sont organisés est différente.
 
 Là où la première architecture pense surtout "où est le code, que fait-il ?", cette architecture par feature dit plutôt "voici telle feature, et tout ce qui s'y rapporte". Si vous avez des petits projets (j'entends par là dont la complexité reste modérée), prenez plutôt l'architecture par feature.
 
