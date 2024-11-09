@@ -1,6 +1,6 @@
 from typing import Optional, List
-from domain.entities.User import User
-from domain.repositories.user_repository import UserRepository
+from user.user import User
+from user.user_repository import UserRepository
 
 class UserInMemoryRepository(UserRepository):
     def __init__(self, database: dict, mapper):
@@ -10,7 +10,7 @@ class UserInMemoryRepository(UserRepository):
 
     def add_user(self, user: User, password: str) -> User:
         """Adds a new user to the database."""
-        user_in_memory = self.mapper.to_external(user, password)
+        user_in_memory = self.mapper.to_external(user)
         user_in_memory.id = self.current_id
         self.database[self.current_id] = user_in_memory
         self.current_id += 1

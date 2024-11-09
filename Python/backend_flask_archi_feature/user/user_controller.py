@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_expects_json import expects_json
-from shared.modules.user_module import user_module
+from user.user_module import user_module
 
 user_bp = Blueprint('user', __name__)
 

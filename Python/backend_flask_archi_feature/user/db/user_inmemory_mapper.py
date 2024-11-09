@@ -1,6 +1,6 @@
-from domain.entities.User import User
-from domain.kernel.Mapper import BaseMapper
-from infra.db.inmemory.entities.user_inmemory import UserInMemory
+from user.user import User
+from user.db.user_inmemory import UserInMemory
+from shared.mapper import BaseMapper
 
 class UserInMemoryMapper(BaseMapper[User, UserInMemory]):
     def to_domain(self, user_in_memory: UserInMemory) -> User:

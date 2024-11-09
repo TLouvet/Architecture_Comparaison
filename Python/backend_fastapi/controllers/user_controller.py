@@ -17,7 +17,7 @@ async def list_users():
 async def get_user(user_id: int):
     user = user_service.get_user_by_id(user_id)
     if user:
-        return user_dto_mapper.to_dto(user)
+        return user_dto_mapper.to_external(user)
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
 @router.put("/users/{user_id}", status_code=status.HTTP_200_OK)
@@ -25,7 +25,7 @@ async def update_user(user_id: int, dto: UserDTO):
     updated_user = user_dto_mapper.to_domain(dto.dict(), user_id)
     result = user_service.update_user(user_id, updated_user)
     if result:
-        return user_dto_mapper.to_dto(result)
+        return user_dto_mapper.to_external(result)
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
 @router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
