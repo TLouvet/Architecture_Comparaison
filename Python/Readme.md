@@ -1,7 +1,21 @@
-# Comparaison entre 2 backends en Python
+# Architecture par feature
 
-Vous trouverez deux implémentations en Python, une en Flask et une en FastAPI.
-L'objectif de ces deux implémentations et de vous montrer qu'avec une architecture de code bien pensée, on peut changer de framework sans trop d'effort.
+Je vous ai montré en cours une architecture assez complète (et surtout complexe), qui s'inspire de ce qu'on appelle le Domain Driven Design (DDD).
+
+Je vous propose dans ce dossier une autre architecture, par feature, beaucoup plus applatie et également plus facile à prendre en main.
+
+Il y a toujours autant de fichier, mais leur répartition varie.
+
+Là où la première architecture pense surtout "où est le code, que fait-il ?", cette architecture par feature dit plutôt "voici telle feature, et tout ce qui s'y rapporte". Si vous avez des petits projets (j'entends par là dont la complexité reste modérée), prenez plutôt l'architecture par feature.
+
+Si vous êtes amenés à travailler sur des gros projets, il y a des chances pour que ça soit quelque chose qui se rapproche de ce que nous avons vu en cours.
+
+Remarquez que puisqu'il s'agit d'une simple réorganisation du code, tous les concepts que nous avons vu s'appliquent toujours : DTO / Controllers / Mappers / Services / Repositories sont présents.
+
+# Comparaison entre 2 backends en Python -> Flask vs FastAPI
+
+Vous trouverez deux implémentations en Python, une en Flask et une en FastAPI. Celle en Flask est celle utilisée pour le cours.
+L'objectif de ces implémentations et de vous montrer qu'avec une architecture de code bien pensée, on peut changer de framework sans trop d'effort.
 
 Pour être honnête, ça m'a pris 20 minutes de faire le changement de framework (pour un framework que je n'ai absolument jamais utilisé, avec ChatGPT pour la syntaxe donc), mais plus du double pour écrire ce fichier de readme.
 
