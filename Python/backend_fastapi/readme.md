@@ -1,6 +1,7 @@
 # Bibliothèque online - Backend FastAPI
 
 Installer les requirements avec pip install -r requirements.txt
+
 Lancer l'application avec `uvicorn main:app --reload`
 
 ## Quelles sont les différences avec le backend Flask ?
