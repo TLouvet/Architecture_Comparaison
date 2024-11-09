@@ -3,14 +3,16 @@
 Vous trouverez deux implémentations en Python, une en Flask et une en FastAPI.
 L'objectif de ces deux implémentations et de vous montrer qu'avec une architecture de code bien pensée, on peut changer de framework sans trop d'effort.
 
-Prenez quelques minutes pour comparer les codes, vous verrez que le fichier main et les fichiers de controllers sont différents.<!-- slide -->
+Prenez quelques minutes pour comparer les codes, vous verrez que le fichier main et les fichiers de controllers sont différents.
+En revanche, les dossiers domain, services, infra (base de données), n'ont pas changé
 
-Comme il y a un changement dans la lib de DTO, nos modules ne les importent plus non plus.
+Comme il y a un changement dans la lib de DTO, ça bouge également de ce côté là, en revanche cela tient d'un problème de design initial, plus particulièrement dans le fait de s'être enfermé dans un package lié à Flask.
+
+## main.py
+
+En Flask:
 
 ```python
-#main.py -
-
-#Flask
 from flask import Flask, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -36,8 +38,11 @@ app.register_blueprint(user_bp)
 @app.route('/hello', methods=['GET'])
 def hello():
     return jsonify(message="API is live!")
+```
 
-#FastAPI
+En FastAPI:
+
+```python
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -73,12 +78,6 @@ async def hello():
 ## Cas des DTO
 
 Vous remarquerez que les DTO sont gérés différemment, car dans le backend flask nous avons fait le choix d'utiliser un package propre à ce framework.
-Toutefois des packages plus génériques existent tels que Pydantic.
-Notez que Flask n'a pas de support natif pour Pydantic, donc il faut faire l'instanciation dans le controller
-
-Réfléchissez donc également aux packages que vous utiliserez pendant vos conceptions, cela pourra vous permettre d'éviter d'être trop liés à un framework.
-
-Je vous invite a essayer sur vos projets:
 
 ```python
 #notre implémentation initiale en Flask:
@@ -89,13 +88,23 @@ def create_author():
     author = author_mapper.to_domain(dto)
     created_author = author_service.create_author(author)
     return jsonify(author_mapper.to_external(created_author)), 201
+```
 
+Toutefois des packages plus génériques existent tels que Pydantic.
+Notez que Flask n'a pas de support natif pour Pydantic, **MAIS** qu'il existe un package _flask-pydantic_ qui vous évite l'instanciation.
 
-## si on utilisait pydantic avec Flask (ce que je vous invite à essayer):
-@app.route('/users', methods=['POST'])
+Réfléchissez donc également aux packages que vous utiliserez pendant vos conceptions, cela pourra vous permettre d'éviter d'être trop liés à un framework et devoir effectuer des changements supplémentaires.
+
+Je vous invite a essayer sur vos projets:
+
+Avec Flask:
+
+```python
+## si on utilisait pydantic avec Flask:
+@author_bp.route('/authors', methods=['POST'])
 def create_user():
     try:
-        dto = UserDTO(**request.json)
+        dto = AuthorDTO(**request.json)
         author = author_mapper.to_domain(dto)
         created_author = author_service.create_author(author)
         return jsonify(author_mapper.to_external(created_author)), 201
@@ -103,6 +112,21 @@ def create_user():
         return jsonify(e.errors()), 400
 
 
+## si on utilisait pydantic avec Flask et flask-pydantic
+@author_bp.route('/authors', methods=['POST'])
+@validate()
+def create_user(dto: AuthorDTO):
+    try:
+        author = author_mapper.to_domain(dto)
+        created_author = author_service.create_author(author)
+        return jsonify(author_mapper.to_external(created_author)), 201
+    except ValidationError as e:
+        return jsonify(e.errors()), 400
+```
+
+Avec FastAPI:
+
+```python
 ## Quand on utilise pydantic avec FastAPI
 @router.post("/authors", status_code=status.HTTP_201_CREATED)
 async def create_author(dto: AuthorDTO):
@@ -113,10 +137,10 @@ async def create_author(dto: AuthorDTO):
 
 Pour les schémas, nous sommes passés d'objets à une définition class-based:
 
+Impélentation pour respecter flask_expects_json:
+
 ```python
 # <backend>/shared/dto/schemas/author_dto.py
-
-#Notre impl pour matcher flask_expects_json:
 author_dto = {
     "type": "object",
     "properties": {
@@ -135,9 +159,11 @@ author_dto = {
     "required": ["first_name", "last_name", "birth_date", "nationality"],
     "additionalProperties": False
 }
+```
 
+Implémentation générique Pydantic:
 
-#L'impl class-based pour Pydantic
+```python
 from pydantic import BaseModel, EmailStr, Field
 from typing import List, Optional, Set
 
@@ -156,8 +182,6 @@ Les changements sur les mappers sont minimes, avec du typage et l'instanciation 
 ```python
 
 #<backend>/shared/dto/mappers/author_dto_mapper.py
-
-# l'impl de base
 from datetime import datetime
 from domain.kernel.Mapper import BaseMapper
 from domain.entities.Author import Author
@@ -188,8 +212,11 @@ class AuthorDTOMapper(BaseMapper[Author, dict]):
             "biography": author.biography,
             "books": author.books
         }
+```
 
-# l'impl avec les DTO pydantic, notez que simplement les descriptions de type et la methode to_external évolue. Le Domain model ne change pas
+Une fois qu'on a utilisé Pydantic, notez qu'il y a très peu d'évolution (encore une fois on aurait pu se passer de ça si on avait harmonisé nos packages de validation dès la conception initiale):
+
+```python
 from datetime import datetime
 from domain.kernel.Mapper import BaseMapper
 from domain.entities.Author import Author
